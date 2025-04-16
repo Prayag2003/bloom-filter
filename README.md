@@ -7,13 +7,11 @@ BloomFilter.io is a high-performance, privacy-aware username availability checke
 ## Table of Contents
 - [What is a Bloom Filter?](#what-is-a-bloom-filter)
 - [Theoretical Foundation](#theoretical-foundation)
-- [Architecture Overview](#architecture-overview)
 - [Features](#features)
-- [Folder Structure](#folder-structure)
 - [Setup Instructions](#setup-instructions)
-  - [1. Server (Go)](#1-setting-up-the-server-go)
-  - [2. Client (React)](#2-setting-up-the-client-react)
-  - [3. Data Preparation](#3-data-preparation)
+    - [1. Data Source](#1-data-source)
+    - [2. Setting Up the Server (Go)](#2-setting-up-the-server-go)
+    - [3. Setting Up the Client (React)](#3-setting-up-the-client-react)
 
 ---
 
@@ -24,8 +22,8 @@ A **Bloom Filter** is a space-efficient probabilistic data structure used to tes
 This makes Bloom Filters especially useful in scenarios where fast membership queries are needed, and occasional false positives are acceptable.
 
 <div style="display: flex; justify-content: space-between;">
-    <img src="assets/success.png" alt="alt text" width="500" height="500" style="margin-right: 10px;">
-    <img src="assets/failure.png" alt="alt text" width="500" height="500">
+        <img src="assets/success.png" alt="alt text" width="500" height="500" style="margin-right: 10px;">
+        <img src="assets/failure.png" alt="alt text" width="500" height="500">
 </div>
 
 ---
@@ -45,7 +43,6 @@ To test if an element is in the set:
 1. Hash it with all **k** hash functions.
 2. If **any** of the bits at the hashed positions are 0 → the element is **definitely not** in the set.
 3. If **all** bits are 1 → the element is **probably** in the set (possible false positive).
-
 
 ### Advantages:
 - Space and time efficient.
@@ -81,6 +78,7 @@ To test if an element is in the set:
 - ✅ Debounced input to reduce server load
 - ✅ Bloom filter backed by a text file and initialized at server startup
 - ✅ Real-time response logging (including timing in ms)
+- ✅ CORS-enabled backend
 - ✅ CORS-enabled backend for safe frontend/backend separation
 
 ---
