@@ -24,8 +24,8 @@ A **Bloom Filter** is a space-efficient probabilistic data structure used to tes
 This makes Bloom Filters especially useful in scenarios where fast membership queries are needed, and occasional false positives are acceptable.
 
 <div style="display: flex; justify-content: space-between;">
-    <img src="success.png" alt="alt text" width="500" height="500" style="margin-right: 10px;">
-    <img src="failure.png" alt="alt text" width="500" height="500">
+    <img src="assets/success.png" alt="alt text" width="500" height="500" style="margin-right: 10px;">
+    <img src="assets/failure.png" alt="alt text" width="500" height="500">
 </div>
 
 ---
@@ -85,32 +85,12 @@ To test if an element is in the set:
 
 ---
 
-## Folder Structure
-
-```
-.
-├── client/                  # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   └── index.css
-├── server/                  # Go backend
-│   ├── main.go
-│   ├── bloom/
-│   ├── handlers/
-│   ├── middleware/
-│   └── storage/
-├── data/
-│   └── users.txt            # Username database
-├── assets/                  # Optional icons/images
-└── README.md
-```
-
----
-
 # Setup Instructions
 
-## 1. Setting Up the Server (Go)
+## 1. Data Source
+### **Download the dataset from [**Kaggle - Reddit Usernames**](https://www.kaggle.com/datasets/colinmorris/reddit-usernames?resource=download). After downloading, unzip the file and place the extracted `users.csv` file inside the `data` folder.**
+
+## 2. Setting Up the Server (Go)
 
 ### Steps:
 1. Clone the repository:
@@ -134,7 +114,7 @@ The server will be running at: `http://localhost:8080`
 
 ---
 
-## 2. Setting Up the Client (React)
+## 3. Setting Up the Client (React)
 
 ### Steps:
 1. Navigate to the client directory:
