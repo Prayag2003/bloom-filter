@@ -1,78 +1,93 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { debounce } from 'lodash'
 import './index.css'
 
 // Custom hook to check username availability
-function useUsernameCheck() {
+function useUsernameCheck(serverUri) {
   const [username, setUsername] = useState('')
   const [available, setAvailable] = useState(null)
   const [checking, setChecking] = useState(false)
+  const [checkTime, setCheckTime] = useState('')
 
-  const serverUri = "http://localhost:8080"
-  const checkUsername = useCallback(
-    debounce(async (name) => {
-      if (!name) {
-        setAvailable(null)
-        setChecking(false)
-        return
-      }
-      setChecking(true)
-      try {
-        const res = await fetch(`${serverUri}/check-username`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: name }),
-        })
-        const data = await res.json()
-        setAvailable(data.available)
-      } catch (err) {
-        console.error('Check failed', err)
-        setAvailable(null)
-      } finally {
-        setChecking(false)
-      }
-    }, 300),
-    []
+  const debouncedCheck = useMemo(
+    () =>
+      debounce(async (name) => {
+        if (!name) {
+          setAvailable(null)
+          setChecking(false)
+          setCheckTime('')
+          return
+        }
+        setChecking(true)
+        try {
+          const start = performance.now()
+          const res = await fetch(`${serverUri}/check-username`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: name }),
+          })
+          const data = await res.json()
+          const end = performance.now()
+          setAvailable(data.available)
+          setCheckTime(`${Math.round(end - start)}ms`)
+        } catch (err) {
+          console.error('Check failed', err)
+          setAvailable(null)
+          setCheckTime('')
+        } finally {
+          setChecking(false)
+        }
+      }, 300),
+    [serverUri]
   )
 
   useEffect(() => {
-    checkUsername(username)
-  }, [username, checkUsername])
+    debouncedCheck(username)
+  }, [username, debouncedCheck])
 
-  return { username, setUsername, available, checking }
+  return { username, setUsername, available, checking, checkTime }
 }
 
 export default function App() {
-  const { username, setUsername, available, checking } = useUsernameCheck()
+  const serverUri = 'http://localhost:8080'
+  const { username, setUsername, available, checking, checkTime } = useUsernameCheck(serverUri)
   const [status, setStatus] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setStatus('')
 
-    // Final check before submitting
-    const resCheck = await fetch(`${serverUri}}/check-username`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username }),
-    })
-    const checkData = await resCheck.json()
+    try {
+      const checkStart = performance.now()
+      const resCheck = await fetch(`${serverUri}/check-username`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      })
+      const checkData = await resCheck.json()
+      const checkEnd = performance.now()
+      console.log(`🔍 Final check time: ${Math.round(checkEnd - checkStart)}ms`)
 
-    if (!checkData.available) {
-      setStatus('❌ Username is taken')
-      return
-    }
+      if (!checkData.available) {
+        setStatus('❌ Username is taken')
+        return
+      }
 
-    const res = await fetch(`${serverUri}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username }),
-    })
+      const res = await fetch(`${serverUri}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      })
 
-    if (res.ok) {
-      setStatus('✅ Registered successfully')
-    } else {
-      const msg = await res.text()
-      setStatus(`❌ ${msg}`)
+      if (res.ok) {
+        setStatus('✅ Registered successfully')
+      } else {
+        const msg = await res.text()
+        setStatus(`❌ ${msg}`)
+      }
+    } catch (err) {
+      console.error('Submission failed', err)
+      setStatus('❌ Something went wrong')
     }
   }
 
@@ -120,6 +135,7 @@ export default function App() {
           {!checking && available !== null && (
             <p className={`text-sm ${available ? 'text-green-600' : 'text-red-600'}`}>
               {available ? '✅ Username is available' : '❌ Username is taken'}
+              {checkTime && <span className="ml-2 text-gray-500">({checkTime})</span>}
             </p>
           )}
 
